@@ -1,40 +1,45 @@
-module BitPosition where
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
+module Main where
 
 import Data.Bits (testBit)
-import Data.Text.Lazy (Text)
-import qualified Data.Text.IO as TextIO
 import System.Environment (getArgs)
-import System.Exit (exitWith)
 
-import Text.Parsec (ParseError, parse, many1, newline)
-import Text.Parsec.Token (natural, comma)
+import Text.Parsec (ParseError, parse, many1)
+import qualified Text.Parsec.Token as Token
+import Text.Parsec.String (Parser, parseFromFile)
+import Text.Parsec.Language (haskellDef)
 
-data Test = Test { n  :: Integer
+data Test = Test { n  :: Int
                  , p1 :: Int
-                 , p2 :: Int }
+                 , p2 :: Int } deriving Show
 
-testDsc = do
-    n <- natural
-    comma
-    p1 <- natural
-    comma
-    p2 <- natural
-    newline
-    return Test { .. }
+lexer = Token.makeTokenParser haskellDef
+natural = Token.natural lexer
+comma = Token.comma lexer
 
-parseFile :: Text -> Either ParseError [Test]
-parseFile = parse (many1 testDsc) "wrong test file"
+testDsc :: Parser Test
+testDsc = intParse >>= \n -> comma >>
+          intParse >>= \p1 -> comma >>
+          intParse >>= \p2 -> return $ Test n p1 p2
+  where
+    intParse = fmap fromInteger natural
 
 printAnswer :: Test -> IO ()
 printAnswer Test { .. } = putStrLn answer
   where
-    answer = if testBit n p1 == testBit n p2 then "true" else "false"
+    testBitInteger = testBit (n + 1)
+    answer = if testBitInteger p1 == testBitInteger p2 then "true" else "false"
+
+job :: String -> IO ()
+job fileName = parseFromFile (many1 testDsc) fileName >>= \res -> case res of
+    Left err -> do
+        error $ show err
+    Right res -> mapM_ printAnswer res
 
 main :: IO ()
-main = getArgs >>= \case
-    [] -> exitWith 1
-    fileName:_ -> do
-        fileContent <- TextIO.readFile fileName
-        case parseFile fileContent of
-          Left _ -> exitWith 1
-          Right res -> mapM_ printAnswer res
+main = getArgs >>= \args -> case args of
+    [] -> error "no file name for parse"
+    fileName:_ -> job fileName
