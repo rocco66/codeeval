@@ -12,7 +12,7 @@ import qualified Text.Parsec.Token as Token
 import Text.Parsec.String (Parser, parseFromFile)
 import Text.Parsec.Language (haskellDef)
 
-data Test = Test { n  :: Int
+data Test = Test { n  :: Integer
                  , p1 :: Int
                  , p2 :: Int } deriving Show
 
@@ -21,7 +21,7 @@ natural = Token.natural lexer
 comma = Token.comma lexer
 
 testDsc :: Parser Test
-testDsc = intParse >>= \n -> comma >>
+testDsc = natural >>= \n -> comma >>
           intParse >>= \p1 -> comma >>
           intParse >>= \p2 -> return $ Test n p1 p2
   where

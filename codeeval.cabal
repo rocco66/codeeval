@@ -4,23 +4,23 @@
 name:                codeeval
 version:             0.1.0.0
 synopsis:            My codeeval answers
--- description:
 license:             MIT
 license-file:        LICENSE
 author:              Maxim Mitroshin
 maintainer:          rocco66max@gmail.com
--- copyright:
--- category:
 build-type:          Simple
--- extra-source-files:
 cabal-version:       >=1.10
 
-executable codeeval
-  main-is: easy/19/BitPosition.hs
-  -- other-modules:
+executable bit_positions
+  main-is: easy/BitPositions/BitPositions.hs
   build-depends:       base   >=4.6 && <4.7
                      , parsec == 3.1.*
                      , text   == 1.1.*
+  default-language:    Haskell2010
 
-  -- hs-source-dirs:
+executable Pangrams
+  main-is: moderate/Pangrams/Pangrams.hs
+  build-depends:       base   >=4.6 && <4.7
+                     , parsec == 3.1.*
+                     , text   == 1.1.*
   default-language:    Haskell2010
